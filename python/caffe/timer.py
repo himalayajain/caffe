@@ -11,7 +11,7 @@ class bcolors:
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
 
-def time_net(net):
+def time_net(net, NIT=100, top=5):
 	import numpy as np
 	import caffe
 	if hasattr(caffe, 'wait_for_cuda'):
@@ -23,7 +23,7 @@ def time_net(net):
 	fwd = {n:[] for n in L}
 	bck = {n:[] for n in L}
 	T0 = time()
-	for i in range(args.n):
+	for i in range(NIT):
 		for j,n in enumerate(L):
 			t0 = time()
 			net._forward(j,j)
@@ -34,10 +34,10 @@ def time_net(net):
 			net._backward(j,j)
 			wait_for_cuda()
 			bck[n].append(time()-t0)
-	args.t = min(args.t, len(fwd)+len(bck))
-	T = sorted([np.mean(v) for v in fwd.values()] + [np.mean(v) for v in bck.values()])[-args.t]
+	top = min(top, len(fwd)+len(bck))
+	T = sorted([np.mean(v) for v in fwd.values()] + [np.mean(v) for v in bck.values()])[-top]
 	T0 = time()-T0
-	print("%s%0.1f%s it / sec    [%s%0.1f%s ms / it]"%(bcolors.BOLD+bcolors().FAIL, args.n / T0, bcolors.ENDC, bcolors.BOLD+bcolors().FAIL, 1000*T0 / args.n, bcolors.ENDC))
+	print("%s%0.1f%s it / sec    [%s%0.1f%s ms / it]"%(bcolors.BOLD+bcolors().FAIL, NIT / T0, bcolors.ENDC, bcolors.BOLD+bcolors().FAIL, 1000*T0 / NIT, bcolors.ENDC))
 	for n in L:
 		cf, cb = bcolors.OKGREEN, bcolors.OKGREEN
 		if np.mean(fwd[n]) >= T: cf = bcolors.BOLD+bcolors().FAIL

@@ -1,9 +1,18 @@
 from __future__ import print_function
-from caffe_all import *
+import caffe
+
+class bcolors:
+	HEADER = '\033[95m'
+	OKBLUE = '\033[94m'
+	OKGREEN = '\033[92m'
+	WARNING = '\033[93m'
+	FAIL = '\033[91m'
+	ENDC = '\033[0m'
+	BOLD = '\033[1m'
+	UNDERLINE = '\033[4m'
 
 class Solver:
 	def __init__(self, prototxt, final_file=None, snap_file=None, solver='Adam', log_file=None, **kwargs):
-		from caffe_all import caffe
 		self.running = False
 		self.force_snapshot = False
 		self.last_interrupt = 0
@@ -75,7 +84,6 @@ class Solver:
 		import signal
 		from time import time
 		import numpy as np
-		from util import bcolors
 		self.running = True
 		avg_weight = 0.95
 
