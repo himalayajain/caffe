@@ -101,12 +101,13 @@ int main(int argc, char** argv) {
 
   // Storing to db
   std::string root_folder(argv[1]);
-  Datum datum;
   int count = 0;
-  int data_size = 0;
-  bool data_size_initialized = false;
 
+#pragma omp parallel for
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
+    Datum datum;
+    int data_size = 0;
+    bool data_size_initialized = false;
     bool status;
     std::string enc = encode_type;
     if (encoded && !enc.size()) {
@@ -138,13 +139,17 @@ int main(int argc, char** argv) {
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
-    txn->Put(key_str, out);
+    
+#pragma omp critical
+    {
+      txn->Put(key_str, out);
 
-    if (++count % 1000 == 0) {
-      // Commit db
-      txn->Commit();
-      txn.reset(db->NewTransaction());
-      LOG(INFO) << "Processed " << count << " files.";
+      if (++count % 1000 == 0) {
+        // Commit db
+        txn->Commit();
+        txn.reset(db->NewTransaction());
+        LOG(INFO) << "Processed " << count << " files.";
+      }
     }
   }
   // write the last batch
