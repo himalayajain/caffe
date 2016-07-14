@@ -323,6 +323,11 @@ void Solver_add_callback(Solver<Dtype> * solver, bp::object on_start,
   bp::object on_gradients_ready) {
   solver->add_callback(new PythonCallback<Dtype>(on_start, on_gradients_ready));
 }
+void waitForCuda() {
+#ifndef CPU_ONLY
+  cudaDeviceSynchronize();
+#endif
+}
 
 namespace detail {
 struct ArrayShape_to_tuple {
@@ -454,6 +459,7 @@ BOOST_PYTHON_MODULE(_caffe) {
   bp::def("set_mode_gpu", &set_mode_gpu);
   bp::def("set_random_seed", &set_random_seed);
   bp::def("set_device", &Caffe::SetDevice);
+  bp::def("wait_for_cuda", &waitForCuda);
 
   bp::def("layer_type_list", &LayerRegistry<Dtype>::LayerTypeList);
 
