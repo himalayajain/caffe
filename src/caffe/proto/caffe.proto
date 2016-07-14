@@ -366,6 +366,7 @@ message LayerParameter {
   optional ContrastiveLossParameter contrastive_loss_param = 105;
   optional ConvolutionParameter convolution_param = 106;
   optional CropParameter crop_param = 144;
+  optional ColorConvParameter color_conv_param = 1030;
   optional DataParameter data_param = 107;
   optional DropoutParameter dropout_param = 108;
   optional DummyDataParameter dummy_data_param = 109;
@@ -494,6 +495,19 @@ message ArgMaxParameter {
   // By default ArgMaxLayer maximizes over the flattened trailing dimensions
   // for each index of the first / num dimension.
   optional int32 axis = 3;
+}
+
+message ColorConvParameter {
+  enum ColorSpace {
+    BGR = 0;
+    RGB = 1;
+    XYZ = 2;
+    Lab = 3;
+//     Luv = 4;
+    Gray = 5;
+  }
+  optional ColorSpace input = 1 [default = BGR];
+  optional ColorSpace output = 2 [default = BGR];
 }
 
 message ConcatParameter {
